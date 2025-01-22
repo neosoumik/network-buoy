@@ -1,9 +1,9 @@
+use chrono::Utc;
+use serde_json::json;
+use std::fs::OpenOptions;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
-use std::fs::OpenOptions;
-use chrono::Utc;
-use serde_json::json;
 
 fn main() {
     // Define the ports and their respective protocol handlers
@@ -77,13 +77,14 @@ fn log_connection(protocol: &str, ip: String, data: &[u8]) {
     let mut file = match OpenOptions::new()
         .create(true)
         .append(true)
-        .open("honeypot.log") {
-            Ok(file) => file,
-            Err(e) => {
-                eprintln!("Failed to open log file: {}", e);
-                return;
-            }
-        };
+        .open("honeypot.log")
+    {
+        Ok(file) => file,
+        Err(e) => {
+            eprintln!("Failed to open log file: {}", e);
+            return;
+        }
+    };
 
     if let Err(e) = writeln!(file, "{}", log_entry_str) {
         eprintln!("Failed to write to log file: {}", e);
@@ -98,7 +99,11 @@ fn handle_ssh(mut stream: TcpStream) {
 }
 
 fn handle_http(mut stream: TcpStream) {
-    log_and_reply(&mut stream, "HTTP", "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
+    log_and_reply(
+        &mut stream,
+        "HTTP",
+        "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n",
+    );
 }
 
 fn handle_https(mut stream: TcpStream) {
@@ -126,7 +131,11 @@ fn handle_imap(mut stream: TcpStream) {
 }
 
 fn handle_telnet(mut stream: TcpStream) {
-    log_and_reply(&mut stream, "Telnet", "Welcome to the Fake Telnet Server\r\n");
+    log_and_reply(
+        &mut stream,
+        "Telnet",
+        "Welcome to the Fake Telnet Server\r\n",
+    );
 }
 
 fn handle_mysql(mut stream: TcpStream) {

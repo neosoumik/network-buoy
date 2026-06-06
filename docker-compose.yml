@@ -1,0 +1,34 @@
+services:
+  buoy:
+    build: .
+    container_name: network-buoy
+    restart: unless-stopped
+    volumes:
+      - ./logs:/data
+      - ollama-models:/root/.ollama
+    environment:
+      OLLAMA_MODEL: "gemma3:1b"
+      # NODE_ID: "prod-1"  # set a unique string per deployment for stable node identity
+    ports:
+      - "21:21"       # FTP
+      - "22:22"       # SSH
+      - "23:23"       # Telnet
+      - "25:25"       # SMTP
+      - "80:80"       # HTTP
+      - "110:110"     # POP3
+      - "143:143"     # IMAP
+      - "389:389"     # LDAP
+      - "443:443"     # HTTPS
+      - "445:445"     # SMB
+      - "3306:3306"   # MySQL
+      - "3389:3389"   # RDP
+      - "5432:5432"   # PostgreSQL
+      - "6379:6379"   # Redis
+      - "6443:6443"   # Kubernetes API
+      - "8080:8080"   # Jenkins
+      - "9090:9090"   # Prometheus
+      - "9200:9200"   # Elasticsearch
+      - "27017:27017" # MongoDB
+
+volumes:
+  ollama-models:

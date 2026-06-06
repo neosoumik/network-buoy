@@ -19,7 +19,7 @@ def _extract_pg_params(data: bytes) -> dict[str, str]:
             offset = null + 1
             if key:
                 params[key] = val
-    except (ValueError, UnicodeDecodeError):
+    except ValueError, UnicodeDecodeError:
         pass
     return params
 

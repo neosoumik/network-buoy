@@ -8,6 +8,7 @@ services:
       - ollama-models:/root/.ollama
     environment:
       OLLAMA_MODEL: "gemma3:1b"
+      WS_PORT: "4444"
       # NODE_ID: "prod-1"  # set a unique string per deployment for stable node identity
     ports:
       - "21:21"       # FTP
@@ -29,6 +30,28 @@ services:
       - "9090:9090"   # Prometheus
       - "9200:9200"   # Elasticsearch
       - "27017:27017" # MongoDB
+      - "4444:4444"   # WebSocket broadcast (dashboard)
+    networks:
+      - buoy-net
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: network-buoy-dashboard
+    restart: unless-stopped
+    environment:
+      BUOY_WS_URL: "ws://buoy:4444"
+    ports:
+      - "3000:3000"   # Dashboard UI
+    depends_on:
+      - buoy
+    networks:
+      - buoy-net
+
+networks:
+  buoy-net:
+    driver: bridge
 
 volumes:
   ollama-models:

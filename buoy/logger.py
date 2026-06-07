@@ -18,6 +18,13 @@ def _write(entry: dict) -> None:
     line = json.dumps(entry)
     with _log_lock, LOG_FILE.open("a") as f:
         f.write(line + "\n")
+    # Broadcast to dashboard WebSocket clients (import deferred to avoid circular)
+    try:
+        from . import ws_broadcast  # noqa: PLC0415
+
+        ws_broadcast.broadcast(entry)
+    except Exception:
+        pass
 
 
 def log_connection(protocol: str, ip: str, data: bytes) -> None:

@@ -1,0 +1,13 @@
+allowBuilds:
+  sharp: false
+  unrs-resolver: false
+
+# Refuse to install packages published less than 7 days ago (10080 minutes).
+# This blocks newly-published malicious packages before the community notices.
+minimumReleaseAge: 10080
+
+# Allowlist of packages permitted to run build/install scripts.
+# unrs-resolver: native resolver required by Next.js SWC compiler — must run.
+# sharp is intentionally excluded (we don't use next/image).
+onlyBuiltDependencies:
+  - unrs-resolver

@@ -48,7 +48,7 @@ def _extract_username(data: bytes) -> str:
             return ""
         null = data.index(b"\x00", offset)
         return data[offset:null].decode("utf-8", errors="replace")
-    except (ValueError, UnicodeDecodeError):
+    except (ValueError, UnicodeDecodeError):  # fmt: skip
         return ""
 
 

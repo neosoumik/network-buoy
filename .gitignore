@@ -9,13 +9,14 @@ __pycache__/
 .venv/
 # .python-version is intentionally tracked — Docker needs it to select Python 3.14t
 
+# Caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
 # Logs — never commit captured data
 *.log
 logs/
-
-# Docker / Ollama local state
-ollama-data/
-ollama-models/
 
 # OS noise
 .DS_Store
@@ -26,3 +27,4 @@ Thumbs.db
 .vscode/
 *.swp
 *~
+target/

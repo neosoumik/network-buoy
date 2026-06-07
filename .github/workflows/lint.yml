@@ -9,6 +9,9 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: buoy
     steps:
       - uses: actions/checkout@v4
 
@@ -30,4 +33,4 @@ jobs:
         run: uv run ruff check .
 
       - name: mypy
-        run: uv run mypy buoy/
+        run: uv run mypy buoy/ forwarders/ main.py

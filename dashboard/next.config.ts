@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  // Block server-side access to the buoy WS URL from being exposed in error traces
   serverExternalPackages: [],
   // Strict security headers
   async headers() {
@@ -24,7 +23,7 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
-              "connect-src 'self' ws: wss:",
+              "connect-src 'self'",
               "img-src 'self' data: blob:",
               "font-src 'self'",
             ].join("; "),

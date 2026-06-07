@@ -33,9 +33,14 @@
         { "containerPort": 27017, "protocol": "tcp" }
       ],
       "environment": [
-        { "name": "HONEYPOT_LOG",  "value": "/data/honeypot.log" },
-        { "name": "OLLAMA_URL",    "value": "http://localhost:11434" },
-        { "name": "OLLAMA_MODEL",  "value": "gemma3:1b" }
+        { "name": "HONEYPOT_LOG",   "value": "/data/honeypot.log" },
+        { "name": "LLM_ENABLED",   "value": "" },
+        { "name": "LLM_PROVIDER",  "value": "" },
+        { "name": "LLM_MODEL",     "value": "" },
+        { "name": "LLM_BASE_URL",  "value": "" },
+        { "name": "LLM_API_KEY",   "value": "" },
+        { "name": "INGEST_URL",    "value": "" },
+        { "name": "API_TOKEN",     "value": "" }
       ],
       "secrets": [
         {

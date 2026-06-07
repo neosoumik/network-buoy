@@ -9,9 +9,9 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import type { BuoyEvent } from "@/lib/types";
+import type { DisplayEvent } from "@/lib/types";
 
-type Props = { events: BuoyEvent[] };
+type Props = { events: DisplayEvent[] };
 
 const BAR_COLORS = [
   "#22d3ee", "#3b82f6", "#8b5cf6", "#ec4899",

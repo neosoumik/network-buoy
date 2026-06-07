@@ -1,34 +1,35 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import type { StreamStatus } from "@/hooks/useBuoyStream";
-import type { BuoyEvent } from "@/lib/types";
+import type { StreamStatus } from "@/hooks/useEventStream";
+import type { DisplayEvent } from "@/lib/types";
+import { isCredentialEvent } from "@/lib/normalize";
 
 type Props = {
   status: StreamStatus;
-  events: BuoyEvent[];
+  events: DisplayEvent[];      // filtered events (for counts)
+  totalEvents: number;         // unfiltered total
 };
 
 const STATUS_COLORS: Record<StreamStatus, string> = {
-  connected: "text-cyan-400",
-  connecting: "text-yellow-400",
+  connected:    "text-cyan-400",
+  connecting:   "text-yellow-400",
   disconnected: "text-red-500",
 };
 
 const STATUS_LABELS: Record<StreamStatus, string> = {
-  connected: "LIVE",
-  connecting: "CONNECTING",
+  connected:    "LIVE",
+  connecting:   "CONNECTING",
   disconnected: "OFFLINE",
 };
 
-export function StatusBar({ status, events }: Props) {
-  const credentials = events.filter((e) => e.event === "credential").length;
-  const uniqueIps = new Set(events.map((e) => e.ip)).size;
+export function StatusBar({ status, events, totalEvents }: Props) {
+  const credentials = events.filter(isCredentialEvent).length;
+  const uniqueIps = new Set(events.map((e) => e.srcIp.split(":")[0])).size;
   const last = events[0];
 
   return (
     <div className="flex items-center gap-6 px-6 py-2 border-b border-blue-900/50 bg-[#020814] text-xs font-mono">
-      {/* Status indicator */}
       <div className="flex items-center gap-2">
         <span
           className={`inline-block w-2 h-2 rounded-full ${
@@ -46,6 +47,9 @@ export function StatusBar({ status, events }: Props) {
 
       <span className="text-blue-400">
         EVENTS: <span className="text-white">{events.length}</span>
+        {events.length !== totalEvents && (
+          <span className="text-blue-700"> / {totalEvents}</span>
+        )}
       </span>
       <span className="text-blue-400">
         CREDS: <span className="text-red-400 font-bold">{credentials}</span>
@@ -65,7 +69,7 @@ export function StatusBar({ status, events }: Props) {
         </span>
       )}
 
-      <span className="text-blue-800">NETWORK-BUOY v0.1</span>
+      <span className="text-blue-800">BUOY-DATALINK v0.1</span>
     </div>
   );
 }

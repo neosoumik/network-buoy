@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# network-buoy dashboard (PoC)
 
-## Getting Started
+A demo-only sci-fi HUD for local presentations. Not intended for production.
 
-First, run the development server:
+Runs a local ingest endpoint so you can point buoy at it and watch attacks visualise in real-time.
+
+---
+
+## Running
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# From the project root — buoy must be up first (creates the shared Docker network)
+docker compose -f docker-compose.buoy.yml up -d
+docker compose -f dashboard/docker-compose.yml up -d
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Dashboard at `http://localhost:3000`. Wire buoy to it:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```yaml
+# docker-compose.buoy.yml
+environment:
+  INGEST_URL: "http://network-buoy-dashboard:3000/api/ingest"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Ingest endpoint
 
-To learn more about Next.js, take a look at the following resources:
+```
+POST /api/ingest
+Content-Type: application/json
+Authorization: ApiToken <token>   # only required if API_TOKEN is set on the dashboard
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Accepts a single event or a JSON array. Each event must have `EventTime` and `EventType`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```json
+[
+  {
+    "EventTime": "2026-06-07T11:00:00.000Z",
+    "EventType": "NETCONN",
+    "SrcIP": "185.220.101.47",
+    "DstPort": 22,
+    "Protocol": "SSH",
+    "SeverityLevel": "E_WARNING"
+  },
+  {
+    "EventTime": "2026-06-07T11:00:01.000Z",
+    "EventType": "LOGIN",
+    "SrcIP": "185.220.101.47",
+    "Protocol": "SSH",
+    "Username": "root",
+    "Password": "toor",
+    "SeverityLevel": "E_CRITICAL"
+  }
+]
+```
 
-## Deploy on Vercel
+Returns `{"ingested": <count>}` on success.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Event schema
+
+| Field              | Type   | Description                                                    |
+|--------------------|--------|----------------------------------------------------------------|
+| `EventTime`        | string | ISO-8601 timestamp — **required**                              |
+| `EventType`        | string | `NETCONN` `LOGIN` `PROCESS` `FILE` `DNS` `URL` — **required** |
+| `SeverityLevel`    | string | `E_NOTICE` `E_WARNING` `E_ERROR` `E_CRITICAL`                  |
+| `SrcIP`            | string | Source IP address                                              |
+| `DstPort`          | number | Destination port — used to infer protocol label if absent      |
+| `Protocol`         | string | Protocol label (`SSH`, `HTTP`, etc.) — overrides DstPort       |
+| `Username`         | string | Captured username                                              |
+| `Password`         | string | Captured password or token                                     |
+| `NetworkDirection` | string | `INCOMING` or `OUTGOING`                                       |
+| `ProcessName`      | string | Process name (for `PROCESS` events)                            |
+| `DnsRequest`       | string | DNS query (for `DNS` events)                                   |
+| `Url`              | string | URL (for `URL` events)                                         |
+| `AgentId`          | string | Sensor / agent identifier                                      |
+| `SiteName`         | string | Site or deployment name                                        |
+| `RawData`          | string | Raw payload (honeypot-specific)                                |
+
+---
+
+## Environment variables
+
+| Variable     | Default   | Description                                                           |
+|--------------|-----------|-----------------------------------------------------------------------|
+| `API_TOKEN`  | _(unset)_ | If set, requires `Authorization: ApiToken <token>` on ingest requests |

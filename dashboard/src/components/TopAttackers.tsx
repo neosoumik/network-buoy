@@ -1,13 +1,13 @@
 "use client";
 
-import type { BuoyEvent } from "@/lib/types";
+import type { DisplayEvent } from "@/lib/types";
 
-type Props = { events: BuoyEvent[] };
+type Props = { events: DisplayEvent[] };
 
 export function TopAttackers({ events }: Props) {
   const counts: Record<string, number> = {};
   for (const ev of events) {
-    const ip = ev.ip.split(":")[0];
+    const ip = ev.srcIp.split(":")[0];
     counts[ip] = (counts[ip] ?? 0) + 1;
   }
   const top = Object.entries(counts)

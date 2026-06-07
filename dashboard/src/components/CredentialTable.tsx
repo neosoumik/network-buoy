@@ -1,12 +1,13 @@
 "use client";
 
 import { format } from "date-fns";
-import type { BuoyEvent } from "@/lib/types";
+import type { DisplayEvent } from "@/lib/types";
+import { isCredentialEvent } from "@/lib/normalize";
 
-type Props = { events: BuoyEvent[] };
+type Props = { events: DisplayEvent[] };
 
 export function CredentialTable({ events }: Props) {
-  const creds = events.filter((e) => e.event === "credential").slice(0, 50);
+  const creds = events.filter(isCredentialEvent).slice(0, 50);
 
   return (
     <div className="border border-red-900/40 bg-[#0d0204] rounded flex flex-col h-full">
@@ -25,26 +26,24 @@ export function CredentialTable({ events }: Props) {
               <tr className="text-red-800 border-b border-red-900/30">
                 <th className="text-left px-3 py-1">TIME</th>
                 <th className="text-left px-3 py-1">PROTO</th>
-                <th className="text-left px-3 py-1">IP</th>
+                <th className="text-left px-3 py-1">SRC IP</th>
                 <th className="text-left px-3 py-1">USER</th>
                 <th className="text-left px-3 py-1">SECRET</th>
               </tr>
             </thead>
             <tbody>
-              {creds.map((ev, i) => (
+              {creds.map((ev) => (
                 <tr
-                  key={i}
+                  key={ev.id}
                   className="border-b border-red-950/30 hover:bg-red-950/20 transition-colors"
                 >
                   <td className="px-3 py-0.5 text-red-900">
                     {format(new Date(ev.timestamp), "HH:mm:ss")}
                   </td>
                   <td className="px-3 py-0.5 text-red-400">{ev.protocol}</td>
-                  <td className="px-3 py-0.5 text-red-300">{ev.ip.split(":")[0]}</td>
+                  <td className="px-3 py-0.5 text-red-300">{ev.srcIp.split(":")[0]}</td>
                   <td className="px-3 py-0.5 text-orange-300">{ev.username ?? "—"}</td>
-                  <td className="px-3 py-0.5 text-red-500">
-                    {ev.password ?? ev.token ?? "—"}
-                  </td>
+                  <td className="px-3 py-0.5 text-red-500">{ev.secret ?? "—"}</td>
                 </tr>
               ))}
             </tbody>

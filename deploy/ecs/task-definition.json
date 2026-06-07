@@ -1,0 +1,79 @@
+{
+  "family": "network-buoy",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "2048",
+  "memory": "4096",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/network-buoy-task-role",
+  "containerDefinitions": [
+    {
+      "name": "network-buoy",
+      "image": "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/network-buoy:latest",
+      "essential": true,
+      "portMappings": [
+        { "containerPort": 21,    "protocol": "tcp" },
+        { "containerPort": 22,    "protocol": "tcp" },
+        { "containerPort": 23,    "protocol": "tcp" },
+        { "containerPort": 25,    "protocol": "tcp" },
+        { "containerPort": 80,    "protocol": "tcp" },
+        { "containerPort": 110,   "protocol": "tcp" },
+        { "containerPort": 143,   "protocol": "tcp" },
+        { "containerPort": 389,   "protocol": "tcp" },
+        { "containerPort": 443,   "protocol": "tcp" },
+        { "containerPort": 445,   "protocol": "tcp" },
+        { "containerPort": 3306,  "protocol": "tcp" },
+        { "containerPort": 3389,  "protocol": "tcp" },
+        { "containerPort": 5432,  "protocol": "tcp" },
+        { "containerPort": 6379,  "protocol": "tcp" },
+        { "containerPort": 6443,  "protocol": "tcp" },
+        { "containerPort": 8080,  "protocol": "tcp" },
+        { "containerPort": 9090,  "protocol": "tcp" },
+        { "containerPort": 9200,  "protocol": "tcp" },
+        { "containerPort": 27017, "protocol": "tcp" }
+      ],
+      "environment": [
+        { "name": "HONEYPOT_LOG",  "value": "/data/honeypot.log" },
+        { "name": "OLLAMA_URL",    "value": "http://localhost:11434" },
+        { "name": "OLLAMA_MODEL",  "value": "gemma3:1b" }
+      ],
+      "secrets": [
+        {
+          "name": "NODE_ID",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/network-buoy/node-id"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "logs",
+          "containerPath": "/data"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/network-buoy",
+          "awslogs-region": "REGION",
+          "awslogs-stream-prefix": "buoy"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "nc -z localhost 80 || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 120
+      }
+    }
+  ],
+  "volumes": [
+    {
+      "name": "logs",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "fs-XXXXXXXX",
+        "rootDirectory": "/buoy-logs",
+        "transitEncryption": "ENABLED"
+      }
+    }
+  ]
+}

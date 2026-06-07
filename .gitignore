@@ -1,2 +1,28 @@
-target/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pqo
+
+# uv / virtualenv
+.venv/
+# .python-version is intentionally tracked — Docker needs it to select Python 3.14t
+
+# Logs — never commit captured data
 *.log
+logs/
+
+# Docker / Ollama local state
+ollama-data/
+ollama-models/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*~

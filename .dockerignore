@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+logs/
+ollama-data/
+honeypot.log
+.git/
+.gitignore
+README.md
+docker-compose.yml

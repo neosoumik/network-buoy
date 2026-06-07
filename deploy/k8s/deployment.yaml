@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: network-buoy
+  namespace: network-buoy
+  labels:
+    app: network-buoy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: network-buoy
+  template:
+    metadata:
+      labels:
+        app: network-buoy
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: network-buoy
+          image: REGISTRY/network-buoy:latest
+          imagePullPolicy: Always
+          env:
+            - name: HONEYPOT_LOG
+              value: /data/honeypot.log
+            - name: OLLAMA_URL
+              value: http://localhost:11434
+            - name: OLLAMA_MODEL
+              value: gemma3:1b
+            # NODE_ID: stable per pod — use the pod name so each replica
+            # has a consistent identity across its own restarts.
+            - name: NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - containerPort: 21
+            - containerPort: 22
+            - containerPort: 23
+            - containerPort: 25
+            - containerPort: 80
+            - containerPort: 110
+            - containerPort: 143
+            - containerPort: 389
+            - containerPort: 443
+            - containerPort: 445
+            - containerPort: 3306
+            - containerPort: 3389
+            - containerPort: 5432
+            - containerPort: 6379
+            - containerPort: 6443
+            - containerPort: 8080
+            - containerPort: 9090
+            - containerPort: 9200
+            - containerPort: 27017
+          volumeMounts:
+            - name: logs
+              mountPath: /data
+            - name: ollama-models
+              mountPath: /root/.ollama
+          resources:
+            requests:
+              cpu: "1"
+              memory: "2Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 90
+            periodSeconds: 10
+      volumes:
+        - name: logs
+          persistentVolumeClaim:
+            claimName: network-buoy-logs
+        - name: ollama-models
+          persistentVolumeClaim:
+            claimName: network-buoy-ollama

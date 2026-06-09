@@ -1,0 +1,46 @@
+services:
+  buoy:
+    build: .
+    container_name: network-buoy
+    restart: unless-stopped
+    volumes:
+      - ./logs:/data
+    environment:
+      # ── LLM (optional — disabled by default) ──────────────────────────────
+      LLM_ENABLED: "true"
+      LLM_PROVIDER: "ollama"
+      LLM_MODEL: "gemma4:latest"
+      LLM_BASE_URL: "http://host.docker.internal:11434"
+      # LLM_API_KEY: ""                   # required for openai / anthropic / secured endpoints
+      # ── Node identity ─────────────────────────────────────────────────────
+      # NODE_ID: "prod-1"
+      INGEST_URL: "http://network-buoy-dashboard:3000/api/ingest"
+      # API_TOKEN:  ""
+      # FLUSH_INTERVAL: "5"
+      # BATCH_SIZE:     "50"
+    ports:
+      - "21:21"
+      - "22:22"
+      - "23:23"
+      - "25:25"
+      - "80:80"
+      - "110:110"
+      - "143:143"
+      - "389:389"
+      - "443:443"
+      - "445:445"
+      - "3306:3306"
+      - "3389:3389"
+      - "5432:5432"
+      - "6379:6379"
+      - "6443:6443"
+      - "8080:8080"
+      - "9090:9090"
+      - "9200:9200"
+      - "27017:27017"
+    networks:
+      - buoy-net
+
+networks:
+  buoy-net:
+    driver: bridge

@@ -1,0 +1,21 @@
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: network-buoy-dashboard
+    restart: unless-stopped
+    environment:
+      # PoC demo dashboard — not for production.
+      # Set API_TOKEN to require "Authorization: ApiToken <token>" on POST /api/ingest.
+      # Leave unset for open ingest (fine for local demo use).
+      API_TOKEN: "${API_TOKEN:-}"
+    ports:
+      - "3000:3000"
+    networks:
+      - buoy-net
+
+networks:
+  buoy-net:
+    external: true
+    name: network-buoy_buoy-net
